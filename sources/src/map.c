@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * This file is part of Bombeirb.
  * Copyright (C) 2018 by Laurent Réveillère
@@ -50,7 +51,12 @@ struct map* map_new(int width, int height)
 int map_is_inside(struct map* map, int x, int y)
 {
 	assert(map);
+	if ( (x<0) || (x>(map->width-1)) || (y<0) || (y>(map->height-1)) )
+		return 0;
+
 	return 1;
+
+
 }
 
 void map_free(struct map *map)
@@ -79,6 +85,14 @@ enum cell_type map_get_cell_type(struct map* map, int x, int y)
 	return map->grid[CELL(x,y)] & 0xf0;
 }
 
+
+enum compose_type map_get_compose_type(struct map* map, int x, int y)
+{
+	assert(map && map_is_inside(map, x, y));
+	return map->grid[CELL(x,y)];
+}
+
+
 void map_set_cell_type(struct map* map, int x, int y, enum cell_type type)
 {
 	assert(map && map_is_inside(map, x, y));
@@ -103,6 +117,10 @@ void display_bonus(struct map* map, int x, int y, unsigned char type)
 
 	case BONUS_BOMB_NB_INC:
 		window_display_image(sprite_get_bonus(BONUS_BOMB_NB_INC), x, y);
+		break;
+
+	case BONUS_LIFE:
+		window_display_image(sprite_get_bonus(BONUS_LIFE), x, y);
 		break;
 	}
 }
@@ -132,7 +150,7 @@ void map_display(struct map* map)
 	    y = j * SIZE_BLOC;
 
 	    unsigned char type = map->grid[CELL(i,j)];
-	    
+
 	    switch (type & 0xf0) {
 		case CELL_SCENERY:
 		  display_scenery(map, x, y, type);
@@ -147,9 +165,12 @@ void map_display(struct map* map)
 	      window_display_image(sprite_get_key(), x, y);
 	      break;
 	    case CELL_DOOR:
-	      // pas de gestion du type de porte
-	      window_display_image(sprite_get_door_opened(), x, y);
-	      break;
+	    	if(type == 9)
+	    		window_display_image(sprite_get_door_opened(), x, y);
+	    	else
+	    		window_display_image(sprite_get_door_closed(), x, y);
+	    	break;
+
 	    }
 	  }
 	}
@@ -166,7 +187,7 @@ struct map* map_get_static(void)
 	  CELL_BOX, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_STONE, CELL_BOX, CELL_STONE, CELL_EMPTY, CELL_EMPTY, CELL_STONE, CELL_EMPTY, CELL_EMPTY,
 	  CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_STONE, CELL_BOX, CELL_STONE, CELL_EMPTY, CELL_EMPTY, CELL_STONE, CELL_EMPTY, CELL_EMPTY,
 	  CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_STONE, CELL_STONE, CELL_STONE, CELL_EMPTY, CELL_EMPTY, CELL_STONE, CELL_EMPTY, CELL_EMPTY,
-	  CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY , CELL_EMPTY, CELL_EMPTY, CELL_STONE,  CELL_EMPTY, CELL_EMPTY,
+	  CELL_EMPTY, CELL_BOX_LIFE, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY , CELL_EMPTY, CELL_EMPTY, CELL_STONE,  CELL_EMPTY, CELL_EMPTY,
 	  CELL_EMPTY, CELL_TREE, CELL_BOX, CELL_TREE, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY,  CELL_EMPTY, CELL_STONE,  CELL_EMPTY, CELL_EMPTY,
 	  CELL_EMPTY, CELL_TREE, CELL_TREE, CELL_TREE, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY,  CELL_STONE,  CELL_EMPTY, CELL_EMPTY,
 	  CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_EMPTY, CELL_STONE,  CELL_EMPTY, CELL_EMPTY,
@@ -179,3 +200,17 @@ struct map* map_get_static(void)
 
 	return map;
 }
+
+
+/* struct map* map_get_open(char* filename)
+{
+
+	FILE* file;
+	char filename[20];
+	int height;
+	int width;
+
+
+
+
+} */

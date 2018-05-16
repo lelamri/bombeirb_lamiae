@@ -8,6 +8,7 @@
 #include <game.h>
 #include <window.h>
 #include <misc.h>
+#include <bomb.h>
 
 
 int main(int argc, char *argv[]) {

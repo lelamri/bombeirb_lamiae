@@ -28,4 +28,13 @@ enum direction {
 	EAST //3
 };
 
+enum bomb_state {
+	state_0=0,
+	state_1,
+	state_2,
+	state_3,
+	state_4,
+	state_5
+};
+
 #endif /* CONSTANT */

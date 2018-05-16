@@ -9,16 +9,18 @@
 #include <misc.h>
 #include <window.h>
 #include <sprite.h>
+#include <player.h>
+#include <bomb.h>
 
 struct game {
 	struct map** maps;       // the game's map
 	short max_levels;        // nb maps of the game
 	short current_level;
 	struct player* player;
+	struct bomb* bomb;
 };
 
-struct game*
-game_new(void) {
+struct game* game_new(void) {
 	sprite_load(); // load sprites into process memory
 
 	struct game* game = malloc(sizeof(*game));
@@ -27,9 +29,11 @@ game_new(void) {
 	game->max_levels = 1;
 	game->current_level = 0;
 
-	game->player = player_init(1);
+	game->player = player_init(2,2,1,1);
 	// Set default location of the player
 	player_set_position(game->player, 1, 0);
+
+	game->bomb = bomb_init();
 
 	return game;
 }
@@ -53,6 +57,11 @@ struct player* game_get_player(struct game* game) {
 	return game->player;
 }
 
+struct bomb* game_get_bomb(struct game* game){
+	assert(game);
+	return game->bomb;
+}
+
 void game_banner_display(struct game* game) {
 	assert(game);
 
@@ -74,8 +83,8 @@ void game_banner_display(struct game* game) {
 	window_display_image(sprite_get_banner_bomb(), x, y);
 
 	x = 2 * white_bloc + 3 * SIZE_BLOC;
-	window_display_image(
-			sprite_get_number(player_get_nb_bomb(game_get_player(game))), x, y);
+	window_display_image(sprite_get_number(player_get_nb_bomb(game_get_player(game))), x, y);
+
 
 	x = 3 * white_bloc + 4 * SIZE_BLOC;
 	window_display_image(sprite_get_banner_range(), x, y);
@@ -85,14 +94,22 @@ void game_banner_display(struct game* game) {
 }
 
 void game_display(struct game* game) {
+	struct map* map = game_get_current_map(game);
 	assert(game);
 
 	window_clear();
 
+	struct bomb* bomb = game_get_bomb(game);
+	struct player* player = game_get_player(game);
+
+
 	game_banner_display(game);
 	map_display(game_get_current_map(game));
-	player_display(game->player);
-
+	player_display(player);
+	while (bomb_get_next_bomb(bomb) != NULL){
+		bomb_display(bomb, map);
+		bomb = bomb_get_next_bomb(bomb);
+	}
 	window_refresh();
 }
 
@@ -100,6 +117,7 @@ static short input_keyboard(struct game* game) {
 	SDL_Event event;
 	struct player* player = game_get_player(game);
 	struct map* map = game_get_current_map(game);
+	struct bomb* bomb = game_get_bomb(game);
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -126,6 +144,10 @@ static short input_keyboard(struct game* game) {
 				player_move(player, map);
 				break;
 			case SDLK_SPACE:
+				if (player_get_nb_bomb(player) != 0){
+					player_dec_nb_bomb(player);
+					bomb_create(bomb, player);
+				}
 				break;
 			default:
 				break;
@@ -138,8 +160,17 @@ static short input_keyboard(struct game* game) {
 }
 
 int game_update(struct game* game) {
+	struct map* map = game_get_current_map(game);
+	struct bomb* bomb = game_get_bomb(game);
+	struct player* player = game_get_player(game);
+
 	if (input_keyboard(game))
 		return 1; // exit game
+
+	while (bomb_get_next_bomb(bomb) != NULL){
+		bomb_update(bomb, game, map, player);
+		bomb = bomb_get_next_bomb(bomb);
+	}
 
 	return 0;
 }

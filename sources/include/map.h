@@ -13,7 +13,9 @@ enum cell_type {
 	CELL_KEY=0x40,       	//  0100 0000
 	CELL_BONUS=0x50, 		// 	0101 0000
 	CELL_MONSTER=0x60, 		// 	0110 0000
-	CELL_BOMB=0x70 	   		// 	0111 0000
+	CELL_BOMB=0x70, 	   		// 	0111 0000
+	CELL_PLAYER=0x80,
+
 
 };
 
@@ -27,9 +29,19 @@ enum bonus_type {
 };
 
 enum scenery_type {
-	SCENERY_STONE,     // 0000 
-	SCENERY_TREE,      // 0010 
-	SCENERY_PRINCESS   // 0010 
+	SCENERY_STONE,     // 0000
+	SCENERY_TREE,      // 0010
+	SCENERY_PRINCESS   // 0010
+};
+
+
+enum bomb_type {
+	BOMB_TTL1,
+	BOMB_TTL2,
+	BOMB_TTL3,
+	BOMB_TTL4,
+	EXPLOSION
+
 };
 
 enum compose_type {
@@ -37,12 +49,27 @@ enum compose_type {
 	CELL_STONE    = CELL_SCENERY | SCENERY_STONE,
 	CELL_PRINCESS = CELL_SCENERY | SCENERY_PRINCESS,
 
-    CELL_BOX_RANGEINC = CELL_BOX | BONUS_BOMB_RANGE_DEC,
-    CELL_BOX_RANGEDEC = CELL_BOX | BONUS_BOMB_RANGE_INC,
-	CELL_BOX_BOMBINC  = CELL_BOX | BONUS_BOMB_NB_DEC,
-    CELL_BOX_BOMBDEC  = CELL_BOX | BONUS_BOMB_NB_INC,
-    CELL_BOX_LIFE     = CELL_BOX | BONUS_MONSTER,
-    CELL_BOX_MONSTER  = CELL_BOX | BONUS_LIFE,
+    CELL_BOX_RANGEINC = CELL_BOX | BONUS_BOMB_RANGE_INC,
+    CELL_BOX_RANGEDEC = CELL_BOX | BONUS_BOMB_RANGE_DEC,
+	CELL_BOX_BOMBINC  = CELL_BOX | BONUS_BOMB_NB_INC,
+    CELL_BOX_BOMBDEC  = CELL_BOX | BONUS_BOMB_NB_DEC,
+    CELL_BOX_LIFE     = CELL_BOX | BONUS_LIFE,
+    CELL_BOX_MONSTER  = CELL_BOX | BONUS_MONSTER,
+
+
+		CELL_BONUS_RANGEINC = CELL_BONUS | BONUS_BOMB_RANGE_INC,
+		CELL_BONUS_RANGEDEC = CELL_BONUS | BONUS_BOMB_RANGE_DEC,
+		CELL_BONUS_BOMBINC  = CELL_BONUS | BONUS_BOMB_NB_INC,
+		CELL_BONUS_BOMBDEC  = CELL_BONUS | BONUS_BOMB_NB_DEC,
+		CELL_BONUS_LIFE     = CELL_BONUS | BONUS_LIFE,
+		CELL_BONUS_MONSTER  = CELL_BONUS | BONUS_MONSTER,
+
+	CELL_BOMB1 = CELL_BOMB | BOMB_TTL1,
+	CELL_BOMB2 = CELL_BOMB | BOMB_TTL2,
+	CELL_BOMB3 = CELL_BOMB | BOMB_TTL3,
+	CELL_BOMB4 = CELL_BOMB | BOMB_TTL4,
+	CELL_EXPLOSION = CELL_BOMB | EXPLOSION
+
 };
 
 struct map;
@@ -58,6 +85,7 @@ int map_get_height(struct map* map);
 
 // Return the type of a cell
 enum cell_type map_get_cell_type(struct map* map, int x, int y);
+enum compose_type map_get_compose_type(struct map* map, int x, int y);
 
 // Set the type of a cell
 void  map_set_cell_type(struct map* map, int x, int y, enum cell_type type);

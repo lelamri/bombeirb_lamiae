@@ -23,4 +23,4 @@ mrproper : clean
 
 archive:
 	-zip -9 -r bombeirb-`date +'%y-%m-%d-%Hh%M'`.zip . -x "*/\.*" -x "\.*" -x "bin/*" -x "*.zip" -x "*~"
-
+	
